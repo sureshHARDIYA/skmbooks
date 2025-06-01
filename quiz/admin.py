@@ -30,6 +30,7 @@ class QuestionAdmin(admin.ModelAdmin):
 class QuizAdmin(admin.ModelAdmin):
     list_display = ("title", "book", "owner", "created_at", "updated_at")
     inlines = [QuestionInline]
+    prepopulated_fields = {"slug": ["title"]}
 
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ("question", "text", "is_correct", "order", "score", "created_at", "updated_at")

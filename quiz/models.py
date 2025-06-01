@@ -1,7 +1,7 @@
 from django.db import models
 from books.models import Book
 from django.contrib.auth import get_user_model
-from core.models import TimeStampedModel  
+from core.models import BaseModel  
 from django.db.models import Max
 
 User = get_user_model()
@@ -15,8 +15,9 @@ class QuestionType(models.TextChoices):
     ORDER = 'ORDER', 'Arrange in Order'
     MATCH = 'MATCH', 'Match the Following'
 
-class Quiz(TimeStampedModel):  # gives created_at, updated_at
+class Quiz(BaseModel):  
     title = models.CharField(max_length=200)
+    slug = models.SlugField(default="", null=False, blank=True, unique=True)
     description = models.TextField(blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='quizzes')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
@@ -25,7 +26,7 @@ class Quiz(TimeStampedModel):  # gives created_at, updated_at
         return self.title
 
 
-class Question(TimeStampedModel):
+class Question(BaseModel):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
     order = models.PositiveIntegerField(default=0)
@@ -43,7 +44,7 @@ class Question(TimeStampedModel):
             self.order = last_order + 1
         super().save(*args, **kwargs)
 
-class Answer(TimeStampedModel):
+class Answer(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
     text = models.TextField()
     is_correct = models.BooleanField(default=False)

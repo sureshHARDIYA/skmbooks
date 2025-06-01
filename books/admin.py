@@ -1,8 +1,5 @@
 from django.contrib import admin
 from .models import Book
-# from guardian.admin import GuardedModelAdmin
-
-# Register your models here.
 
 class BookAdmin(admin.ModelAdmin):
   prepopulated_fields = {"slug": ["title"]}
