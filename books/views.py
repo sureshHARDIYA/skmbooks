@@ -1,5 +1,7 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
 
-def books(request):
-    return HttpResponse("Hello world!")
+class BookListView(generics.ListAPIView):
+    queryset = Book.objects.all().order_by('title')
+    serializer_class = BookSerializer

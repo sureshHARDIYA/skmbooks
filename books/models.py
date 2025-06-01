@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-class Book(models.Model):
+from core.models import TimeStampedModel
+
+class Book(TimeStampedModel):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='books')
     title = models.CharField(max_length=100)
     slug = models.SlugField(default="", null=False, blank=True, unique=True)
