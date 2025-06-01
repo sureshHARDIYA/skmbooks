@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'guardian',
     'core', 
     'books',  # Custom app for managing books
+    'quiz'
 ]
 
 MIDDLEWARE = [
