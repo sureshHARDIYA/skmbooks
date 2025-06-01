@@ -65,3 +65,24 @@ class Answer(BaseModel):
             )['order__max'] or 0
             self.order = last_order + 1
         super().save(*args, **kwargs)
+
+class UserQuizSession(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    score = models.PositiveIntegerField(default=0)
+    is_completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.title}"
+    
+class UserAnswer(BaseModel):
+    session = models.ForeignKey(UserQuizSession, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer_ids = models.JSONField()  # UUID list or plain text for free input
+    is_correct = models.BooleanField(default=False)
+    score = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Answer by {self.session.user.username} for {self.question.id}"

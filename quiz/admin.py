@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Quiz, Question, Answer, QuestionType
+from .models import Quiz, Question, Answer, QuestionType, UserQuizSession, UserAnswer
 
 class AnswerInline(admin.TabularInline):
     exclude = ['order']
@@ -39,3 +39,5 @@ class AnswerAdmin(admin.ModelAdmin):
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer, AnswerAdmin)
+admin.site.register(UserQuizSession)
+admin.site.register(UserAnswer)
