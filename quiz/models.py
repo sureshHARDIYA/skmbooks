@@ -1,7 +1,8 @@
 from django.db import models
 from books.models import Book
 from django.contrib.auth import get_user_model
-from core.models import TimeStampedModel  # assuming you've created this
+from core.models import TimeStampedModel  
+from django.db.models import Max
 
 User = get_user_model()
 
@@ -13,3 +14,41 @@ class Quiz(TimeStampedModel):  # gives created_at, updated_at
 
     def __str__(self):
         return self.title
+
+
+class Question(TimeStampedModel):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Question {self.order} for {self.quiz.title}"
+    class Meta:
+        ordering = ['order']
+    
+    def save(self, *args, **kwargs):
+        if self.order == 0:
+            last_order = Question.objects.filter(quiz=self.quiz).aggregate(models.Max('order'))['order__max'] or 0
+            self.order = last_order + 1
+        super().save(*args, **kwargs)
+
+class Answer(TimeStampedModel):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    text = models.TextField()
+    is_correct = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+    score = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Answer {self.order} for {self.question.text}"
+
+    class Meta:
+        ordering = ['order']
+
+    def save(self, *args, **kwargs):
+        if self.order == 0 and self.question:  # ensure question exists
+            last_order = Answer.objects.filter(question=self.question).aggregate(
+                Max('order')
+            )['order__max'] or 0
+            self.order = last_order + 1
+        super().save(*args, **kwargs)
