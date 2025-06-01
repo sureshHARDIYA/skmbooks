@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'guardian',
     'books',  # Custom app for managing books
 ]
 
@@ -47,8 +48,13 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 ROOT_URLCONF = 'skmbooks.urls'
 
@@ -68,6 +74,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'skmbooks.wsgi.application'
+
+# Optional: define anonymous user ID (recommended by django-guardian)
+ANONYMOUS_USER_ID = -1
 
 
 # Database
