@@ -12,13 +12,22 @@ class QuizSerializer(FlexFieldsModelSerializer):
             'questions': ('quiz.serializers.QuestionSerializer', {'many': True}),
         }
 
+class AnswerPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        exclude = ['is_correct', 'score'] 
+
 class QuestionSerializer(FlexFieldsModelSerializer):
+    answers = AnswerPublicSerializer(many=True, read_only=True)
+
     class Meta:
         model = Question
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
+        fields = ['id', 'text', 'question_type', 'order', 'answers']
+
         expandable_fields = {
-            'answers': ('quiz.serializers.AnswerSerializer', {'many': True}),
+            'answers': ('quiz.serializers.AnswerPublicSerializer', {'many': True}),
         }
 
         def to_representation(self, instance):
