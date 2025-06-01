@@ -13,6 +13,7 @@ class Book(TimeStampedModel):
     pages = models.IntegerField()
     publisher = models.CharField(max_length=100)
     published_year = models.IntegerField()
+    
    
     def __str__(self):
         return self.title
