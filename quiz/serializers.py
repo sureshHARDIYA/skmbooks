@@ -1,17 +1,25 @@
 from rest_framework import serializers
+from rest_flex_fields import FlexFieldsModelSerializer
+
 from .models import Quiz, Question, Answer
 
-class QuizSerializer(serializers.ModelSerializer):
+class QuizSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Quiz
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
+        expandable_fields = {
+            'questions': ('quiz.serializers.QuestionSerializer', {'many': True}),
+        }
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Question
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
+        expandable_fields = {
+            'answers': ('quiz.serializers.AnswerSerializer', {'many': True}),
+        }
 
         def to_representation(self, instance):
             rep = super().to_representation(instance)
