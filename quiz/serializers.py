@@ -21,6 +21,7 @@ class AnswerPublicSerializer(serializers.ModelSerializer):
 class QuestionSerializer(FlexFieldsModelSerializer):
     answers = AnswerPublicSerializer(many=True, read_only=True)
     shuffled_match_options = serializers.SerializerMethodField()
+    shuffled_order_options = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -31,25 +32,40 @@ class QuestionSerializer(FlexFieldsModelSerializer):
             'question_type',
             'order',
             'answers',
-            'shuffled_match_options'  # Include the field
+            'shuffled_match_options',
+            'shuffled_order_options',
         ]
-
-        expandable_fields = {
-            'answers': ('quiz.serializers.AnswerPublicSerializer', {'many': True}),
-        }
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        if instance.question_type in ['TEXT', 'BLANK']:
+        if instance.question_type in ['TEXT', 'BLANK', QuestionType.MATCH, QuestionType.ORDER]:
             rep.pop('answers', None)
+        if instance.question_type != QuestionType.MATCH:
+            rep.pop('shuffled_match_options', None)
+        if instance.question_type != QuestionType.ORDER:
+            rep.pop('shuffled_order_options', None)
         return rep
 
     def get_shuffled_match_options(self, obj):
         if obj.question_type == QuestionType.MATCH:
-            pairs = [a.match_pair for a in obj.answers.all() if a.match_pair]
-            random.shuffle(pairs)
-            return pairs
-        return None
+            matches = [
+                {"id": str(a.id), "text": a.match_pair}
+                for a in obj.answers.all()
+                if a.match_pair
+            ]
+            random.shuffle(matches)
+            return matches
+        return []
+
+    def get_shuffled_order_options(self, obj):
+        if obj.question_type == QuestionType.ORDER:
+            options = [
+                {"id": str(a.id), "text": a.text}
+                for a in obj.answers.all()
+            ]
+            random.shuffle(options)
+            return options
+        return []
    
 
 class AnswerSerializer(serializers.ModelSerializer):

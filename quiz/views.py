@@ -4,97 +4,34 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.utils import timezone
 from django.db.models import Q
 
-from .models import Quiz, Question, QuestionType, Answer
+from .models import Quiz, Question, Answer, UserQuizSession, UserAnswer
 from .serializers import QuizSerializer
+from .utils import check_answer  # Helper function to evaluate answers
+
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
 
     def get_object(self):
-        lookup_value = self.kwargs.get('pk')  # or 'slug' depending on URL conf
+        lookup_value = self.kwargs.get('pk')
         try:
             uuid_val = uuid.UUID(lookup_value, version=4)
             condition = Q(id=uuid_val)
         except ValueError:
             condition = Q(slug=lookup_value)
         return get_object_or_404(self.get_queryset(), condition)
-    
+
     @action(detail=False, methods=["post"], url_path="practice/answer")
     def check_practice_answer(self, request):
         question_id = request.data.get("question_id")
         response = request.data.get("response")
 
         question = get_object_or_404(Question, id=question_id)
-        is_correct = False
-        awarded_score = 0
-        feedback = []
-
-        correct_ids = list(
-            question.answers.filter(is_correct=True).values_list("id", flat=True)
-        )
-
-        if question.question_type == QuestionType.SINGLE_CHOICE:
-            selected_answer = Answer.objects.filter(id=response[0], question=question).first()
-            if selected_answer:
-                is_correct = selected_answer.is_correct
-                awarded_score = selected_answer.score if is_correct else 0
-                feedback_text = selected_answer.feedback_if_correct if is_correct else selected_answer.feedback_if_wrong
-                if feedback_text:
-                    feedback.append(feedback_text)
-
-        elif question.question_type == QuestionType.MULTI_SELECT:
-            selected_answers = Answer.objects.filter(id__in=response, question=question)
-            selected_ids = [str(ans.id) for ans in selected_answers]
-            is_correct = sorted(selected_ids) == sorted([str(cid) for cid in correct_ids])
-            awarded_score = sum(a.score for a in selected_answers if a.id in correct_ids)
-
-            for ans in selected_answers:
-                fb = ans.feedback_if_correct if ans.is_correct else ans.feedback_if_wrong
-                if fb:
-                    feedback.append(fb)
-
-        elif question.question_type == QuestionType.FREE_TEXT:
-            correct_answer = question.answers.first().text.strip().lower()
-            is_correct = response.strip().lower() == correct_answer
-            awarded_score = question.answers.first().score if is_correct else 0
-            feedback_text = question.answers.first().feedback_if_correct if is_correct else question.answers.first().feedback_if_wrong
-            if feedback_text:
-                feedback.append(feedback_text)
-
-        elif question.question_type == QuestionType.ORDER:
-            # Expecting ordered list of answer IDs
-            correct_order = list(question.answers.order_by('order').values_list('id', flat=True))
-            is_correct = response == list(correct_order)
-            for idx, ans_id in enumerate(response):
-                if ans_id == str(correct_order[idx]):
-                    answer = Answer.objects.get(id=ans_id)
-                    awarded_score += answer.score
-                    if answer.feedback_if_correct:
-                        feedback.append(answer.feedback_if_correct)
-                else:
-                    answer = Answer.objects.filter(id=ans_id).first()
-                    if answer and answer.feedback_if_wrong:
-                        feedback.append(answer.feedback_if_wrong)
-
-        elif question.question_type == QuestionType.MATCH:
-            # Expecting: {"left_term": "right_match", ...}
-            match_data = {a.text.strip(): a.match_pair.strip() for a in question.answers.all()}
-            is_correct = True
-            for term, user_match in response.items():
-                expected_match = match_data.get(term)
-                answer = question.answers.filter(text=term).first()
-                if expected_match and user_match.strip() == expected_match:
-                    awarded_score += answer.score
-                    if answer.feedback_if_correct:
-                        feedback.append(answer.feedback_if_correct)
-                else:
-                    is_correct = False
-                    if answer and answer.feedback_if_wrong:
-                        feedback.append(answer.feedback_if_wrong)
+        is_correct, awarded_score, correct_ids, feedback = check_answer(question, response)
 
         return Response({
             "is_correct": is_correct,
@@ -102,3 +39,46 @@ class QuizViewSet(viewsets.ModelViewSet):
             "correct_answer_ids": correct_ids if correct_ids else None,
             "feedback": feedback
         }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="test/submit")
+    def submit_test(self, request):
+        user = request.user
+        quiz_id = request.data.get("quiz_id")
+        answers_data = request.data.get("answers", [])
+
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        session, created = UserQuizSession.objects.get_or_create(
+            user=user, quiz=quiz, defaults={"started_at": timezone.now()}
+        )
+
+        if session.is_completed:
+            return Response({"detail": "Quiz already completed."}, status=400)
+
+        total_score = 0
+
+        for item in answers_data:
+            question_id = item["question_id"]
+            response = item["response"]
+            question = get_object_or_404(Question, id=question_id, quiz=quiz)
+
+            is_correct, score, _, _ = check_answer(question, response)
+
+            UserAnswer.objects.create(
+                session=session,
+                question=question,
+                selected_answer_ids=response,
+                is_correct=is_correct,
+                score=score
+            )
+            total_score += score
+
+        session.score = total_score
+        session.completed_at = timezone.now()
+        session.is_completed = True
+        session.save()
+
+        return Response({
+            "quiz_id": quiz.id,
+            "total_score": total_score,
+            "completed": True
+        })
