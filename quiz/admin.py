@@ -1,10 +1,27 @@
 from django.contrib import admin
 from .models import Quiz, Question, Answer, QuestionType, UserQuizSession, UserAnswer
+from django import forms
+
+class AnswerInlineForm(forms.ModelForm):
+    class Meta:
+        model = Answer
+        fields = '__all__'
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 10, 'cols': 30}),
+            'feedback_if_correct': forms.Textarea(attrs={'rows': 10, 'cols': 30}),
+            'feedback_if_wrong': forms.Textarea(attrs={'rows': 10, 'cols': 30}),
+        }
 
 class AnswerInline(admin.TabularInline):
     exclude = ['order']
     model = Answer
+    form = AnswerInlineForm
     extra = 1
+    # fields = ('text', 'is_correct', 'score')
+    show_change_link = True
+    verbose_name = "Answer"
+    verbose_name_plural = "Answers"
+    # autocomplete_fields = ['question']
 
 class QuestionInline(admin.TabularInline):
     model = Question

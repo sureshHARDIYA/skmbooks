@@ -51,6 +51,9 @@ class Answer(BaseModel):
     order = models.PositiveIntegerField(default=0)
     score = models.PositiveIntegerField(default=0)
     match_pair = models.CharField(max_length=255, blank=True, null=True)
+    feedback_if_correct = models.TextField(blank=True, null=True, help_text="Feedback shown when this answer is correct")
+    feedback_if_wrong = models.TextField(blank=True, null=True, help_text="Feedback shown when this answer is selected but is incorrect")
+
 
     def __str__(self):
         return f"Answer {self.order} for {self.question.text}"
