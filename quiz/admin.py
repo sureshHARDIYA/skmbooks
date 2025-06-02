@@ -27,6 +27,7 @@ class QuestionInline(admin.TabularInline):
     model = Question
     exclude = ['order']
     extra = 1
+    show_change_link = True
 
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ("quiz", "text", "order", "created_at", "updated_at")
@@ -42,8 +43,37 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = ("question", "text", "is_correct", "order", "score", "created_at", "updated_at")
     exclude = ['order']
 
+class UserQuizSessionAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'quiz',
+        'score',
+        'is_completed',
+        'started_at',
+        'completed_at',
+    )
+    list_filter = ('is_completed', 'quiz')
+    search_fields = ('user__username', 'quiz__title')
+    ordering = ('-started_at',)
+
+class UserAnswerAdmin(admin.ModelAdmin):
+    list_display = (
+        'session_display',
+        'question',
+        'is_correct',
+        'score',
+        'created_at',
+        'updated_at',
+    )
+    search_fields = ('session__user__username', 'question__text')
+    list_filter = ('is_correct', 'session__quiz__title')
+
+    def session_display(self, obj):
+        return f"{obj.session.user.username} - {obj.question.text[:50]}"
+    session_display.short_description = 'Answer by'
+
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer, AnswerAdmin)
-admin.site.register(UserQuizSession)
-admin.site.register(UserAnswer)
+admin.site.register(UserQuizSession, UserQuizSessionAdmin)
+admin.site.register(UserAnswer, UserAnswerAdmin)
