@@ -10,8 +10,6 @@ class QuestionType(models.TextChoices):
     SINGLE_CHOICE = 'SINGLE', 'Single Choice'
     MULTI_SELECT = 'MULTI', 'Multiple Select'
     FREE_TEXT = 'TEXT', 'Free Text'
-    FILL_BLANKS = 'BLANK', 'Fill in the Blanks'
-    TRUE_FALSE = 'BOOL', 'True/False'
     ORDER = 'ORDER', 'Arrange in Order'
     MATCH = 'MATCH', 'Match the Following'
 
