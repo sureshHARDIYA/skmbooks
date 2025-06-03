@@ -15,6 +15,7 @@ dist/
 
 __pycache__/
 
+
 # Log files
 *.log
 
