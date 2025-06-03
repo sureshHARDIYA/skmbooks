@@ -1,4 +1,4 @@
-# Generated manually 
+# Generated manually to fix migration issues
 import uuid
 from django.db import migrations, models
 import django.utils.timezone
@@ -41,11 +41,13 @@ class Migration(migrations.Migration):
                 ('cover_picture', models.ImageField(blank=True, null=True, upload_to='')),
                 ('about_me', models.TextField(blank=True, default='')),
                 ('title', models.CharField(blank=True, default='', max_length=100)),
+                ('username', models.CharField(blank=True, max_length=150, null=True)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
             ],
             options={
-                'abstract': False,
+                'verbose_name': 'user',
+                'verbose_name_plural': 'users',
                 'swappable': 'AUTH_USER_MODEL',
             },
             managers=[

@@ -1,10 +1,10 @@
 from django.db import models
 from books.models import Book
-from django.contrib.auth import get_user_model
 from core.models import BaseModel  
 from django.db.models import Max
+from django.conf import settings
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 class QuestionType(models.TextChoices):
     SINGLE_CHOICE = 'SINGLE', 'Single Choice'

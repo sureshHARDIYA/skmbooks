@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from core.models import BaseModel
 
 class Book(BaseModel):
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='books')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='books')
     title = models.CharField(max_length=100)
     slug = models.SlugField(default="", null=False, blank=True, unique=True)
     description = models.TextField()
