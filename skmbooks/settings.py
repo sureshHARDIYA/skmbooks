@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'guardian',
     'drf_spectacular',
+    'djoser',
     'core', 
     'books',  # Custom app for managing books
-    'quiz'
+    'quiz',
+    'profiles',  # Custom app for managing user profiles
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTH_USER_MODEL = 'profiles.User'
