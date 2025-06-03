@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'profiles',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,13 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'guardian',
     'drf_spectacular',
     'djoser',
     'core', 
-    'books',  # Custom app for managing books
-    'quiz',
-    'profiles',  # Custom app for managing user profiles
+    'books',  
+    'quiz'
 ]
 
 MIDDLEWARE = [
@@ -57,10 +56,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',  # this is default
-    'guardian.backends.ObjectPermissionBackend',
-)
+# AUTHENTICATION_BACKENDS = (
+#     'django.contrib.auth.backends.ModelBackend',  # this is default
+#     'guardian.backends.ObjectPermissionBackend',
+# )
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -74,6 +73,8 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'skmbooks.urls'
+
+AUTH_USER_MODEL = 'profiles.User'
 
 TEMPLATES = [
     {
@@ -92,8 +93,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'skmbooks.wsgi.application'
 
-# Optional: define anonymous user ID (recommended by django-guardian)
-ANONYMOUS_USER_ID = -1
+# # Optional: define anonymous user ID (recommended by django-guardian)
+# ANONYMOUS_USER_ID = -1
 
 
 # Database
@@ -147,6 +148,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-AUTH_USER_MODEL = 'profiles.User'

@@ -1,8 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from core.models import BaseModel
+from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
 
+# Custom User model - this is the primary authentication model for the app
+# It replaces Django's built-in User model as specified in settings.AUTH_USER_MODEL
 class User(BaseModel, AbstractUser):
     USERNAME_FIELD = "email"
     username = None
@@ -41,9 +43,12 @@ class User(BaseModel, AbstractUser):
     state = models.CharField(max_length=50, blank=True, default="")
     country = models.CharField(max_length=100, blank=True, default="")
     zip_code = models.CharField(max_length=10, blank=True, default="")
-    # picture = models.ImageField(null=True, blank=True)
-    # cover_picture = models.ImageField(null=True, blank=True)
+    picture = models.ImageField(null=True, blank=True)
+    cover_picture = models.ImageField(null=True, blank=True)
     about_me = models.TextField(blank=True, default="")
     title = models.CharField(max_length=100, blank=True, default="")
     
     objects = CustomUserManager()
+    
+    def __str__(self):
+        return self.email
