@@ -47,5 +47,7 @@ class User(BaseModel, AbstractUser):
     cover_picture = models.ImageField(null=True, blank=True)
     about_me = models.TextField(blank=True, default="")
     title = models.CharField(max_length=100, blank=True, default="")
+    quizzes_completed = models.IntegerField(default=0)
+    total_score = models.IntegerField(default=0)
     
     objects = CustomUserManager()

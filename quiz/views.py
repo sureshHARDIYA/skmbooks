@@ -10,11 +10,16 @@ from django.db.models import Q
 from .models import Quiz, Question, Answer, UserQuizSession, UserAnswer
 from .serializers import QuizSerializer
 from .utils import check_answer  # Helper function to evaluate answers
+from gamification.services import award_points_and_check_badges
 
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
     def get_object(self):
         lookup_value = self.kwargs.get('pk')
@@ -76,6 +81,12 @@ class QuizViewSet(viewsets.ModelViewSet):
         session.completed_at = timezone.now()
         session.is_completed = True
         session.save()
+
+        # Gamification hook
+        profile = user.profile
+        profile.quizzes_completed += 1
+        profile.save()
+        award_points_and_check_badges(profile, points=total_score, reason=f"Completed quiz: {quiz.title}")
 
         return Response({
             "quiz_id": quiz.id,

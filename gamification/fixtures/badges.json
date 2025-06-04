@@ -1,0 +1,39 @@
+[
+    {
+      "model": "gamification.badge",
+      "pk": 1,
+      "fields": {
+        "title": "100 XP Club",
+        "description": "Earn 100 or more total points"
+      }
+    },
+    {
+      "model": "gamification.badgecriterion",
+      "pk": 1,
+      "fields": {
+        "badge": 1,
+        "field": "total_score",
+        "operator": ">=",
+        "value": 100
+      }
+    },
+    {
+      "model": "gamification.badge",
+      "pk": 2,
+      "fields": {
+        "title": "Quiz Master",
+        "description": "Complete at least 10 quizzes"
+      }
+    },
+    {
+      "model": "gamification.badgecriterion",
+      "pk": 2,
+      "fields": {
+        "badge": 2,
+        "field": "quizzes_completed",
+        "operator": ">=",
+        "value": 10
+      }
+    }
+  ]
+  

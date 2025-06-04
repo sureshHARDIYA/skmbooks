@@ -4,7 +4,6 @@ from .models import User
 
 from django.utils.translation import gettext_lazy as _
 
-
 class UserAdmin(DjangoUserAdmin):
     model = User
     list_display = ["email", "first_name", "last_name", "is_staff", "is_active", "user_type"]
@@ -36,3 +35,4 @@ class UserAdmin(DjangoUserAdmin):
         return super().get_model_perms(request)
 
 admin.site.register(User, UserAdmin)
+
