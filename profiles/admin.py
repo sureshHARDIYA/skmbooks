@@ -15,13 +15,13 @@ class UserAdmin(DjangoUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2", 'user_type', 'gender'),
+                "fields": ("email", "first_name", "last_name", "password1", "password2", 'user_type'),
             },
         ),
     )
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", 'user_type', 'gender')}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", 'user_type', 'gender', 'date_of_birth', 'address', 'state', 'country', 'zip_code', 'picture', 'cover_picture', 'about_me', 'title')}),
         (
             _("Permissions"),
             {
