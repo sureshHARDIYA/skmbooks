@@ -19,7 +19,7 @@ def award_points_and_check_badges(profile, points, reason):
 
     # 3. Update leaderboard total
     leaderboard, _ = LeaderboardEntry.objects.get_or_create(profile=profile)
-    leaderboard.total_points += points
+    leaderboard.total_score += points
     leaderboard.save()
 
     # 3. Check and award badges

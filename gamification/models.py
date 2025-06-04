@@ -13,15 +13,14 @@ class GamificationPoint(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.profile.user.username} +{self.points} for {self.reason}"
+        return f"{self.profile.username} +{self.points} for {self.reason}"
 
 class LeaderboardEntry(models.Model):
-    profile = models.OneToOneField(User, on_delete=models.CASCADE)
-    last_updated = models.DateTimeField(auto_now=True)
-    total_score = models.IntegerField(default=0) 
+    profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    total_score = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.profile.user.username} - {self.total_points} pts"
+        return f"{self.profile.username} - {self.total_score} pts"
 
 
 from django.db import models

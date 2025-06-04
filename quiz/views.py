@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from .models import Quiz, Question, Answer, UserQuizSession, UserAnswer
-from .serializers import QuizSerializer
+from .serializers import QuizSerializer, QuestionSerializer, AnswerSerializer
 from .utils import check_answer  # Helper function to evaluate answers
 from gamification.services import award_points_and_check_badges
 
@@ -83,13 +83,27 @@ class QuizViewSet(viewsets.ModelViewSet):
         session.save()
 
         # Gamification hook
-        profile = user.profile
-        profile.quizzes_completed += 1
-        profile.save()
-        award_points_and_check_badges(profile, points=total_score, reason=f"Completed quiz: {quiz.title}")
+        user.total_score += 10
+        user.quizzes_completed += 1
+        user.save()
+        award_points_and_check_badges(user, points=total_score, reason=f"Completed quiz: {quiz.title}")
 
         return Response({
             "quiz_id": quiz.id,
             "total_score": total_score,
             "completed": True
         })
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+class AnswerViewSet(viewsets.ModelViewSet):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()

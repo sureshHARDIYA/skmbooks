@@ -18,8 +18,15 @@ class AnswerPublicSerializer(serializers.ModelSerializer):
         model = Answer
         exclude = ['is_correct', 'score', 'match_pair'] 
 
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        exclude = ['question', 'created_at', 'updated_at']
+
+
 class QuestionSerializer(FlexFieldsModelSerializer):
-    answers = AnswerPublicSerializer(many=True, read_only=True)
+    answers = AnswerSerializer(many=True, write_only=True)
+    answers_read = AnswerPublicSerializer(many=True, read_only=True, source='answers')
     shuffled_match_options = serializers.SerializerMethodField()
     shuffled_order_options = serializers.SerializerMethodField()
 
@@ -31,7 +38,9 @@ class QuestionSerializer(FlexFieldsModelSerializer):
             'text',
             'question_type',
             'order',
-            'answers',
+            'quiz',
+            'answers',              # for write (POST)
+            'answers_read',         # for read (GET)
             'shuffled_match_options',
             'shuffled_order_options',
         ]
@@ -39,7 +48,7 @@ class QuestionSerializer(FlexFieldsModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         if instance.question_type in ['TEXT', 'BLANK', QuestionType.MATCH, QuestionType.ORDER]:
-            rep.pop('answers', None)
+            rep.pop('answers_read', None)
         if instance.question_type != QuestionType.MATCH:
             rep.pop('shuffled_match_options', None)
         if instance.question_type != QuestionType.ORDER:
@@ -66,10 +75,14 @@ class QuestionSerializer(FlexFieldsModelSerializer):
             random.shuffle(options)
             return options
         return []
+
+    def create(self, validated_data):
+        answers_data = validated_data.pop('answers')
+        question = Question.objects.create(**validated_data)
+        for answer_data in answers_data:
+            Answer.objects.create(question=question, **answer_data)
+        return question
+
+
    
 
-class AnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']

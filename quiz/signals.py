@@ -8,3 +8,5 @@ def handle_quiz_completion(sender, instance, created, **kwargs):
     if created:
         profile = instance.user.profile
         award_points_and_check_badges(profile, points=10, reason="Completed a quiz")
+
+

@@ -39,5 +39,5 @@ class GamificationPointAdmin(admin.ModelAdmin):
 
 @admin.register(LeaderboardEntry)
 class LeaderboardEntryAdmin(admin.ModelAdmin):
-    list_display = ("profile", "total_score", "last_updated")
+    list_display = ("profile", "total_score")
     ordering = ("-total_score",)
