@@ -53,3 +53,5 @@ Thumbs.db
 
 venv/
 .git
+*.sqlite3
+db.sqlite3

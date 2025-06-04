@@ -5,8 +5,6 @@ from .models import User
 from django.utils.translation import gettext_lazy as _
 
 
-User._meta.app_label = 'auth' 
-
 class UserAdmin(DjangoUserAdmin):
     model = User
     list_display = ["email", "first_name", "last_name", "is_staff", "is_active", "user_type"]
