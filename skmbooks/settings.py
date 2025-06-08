@@ -34,8 +34,7 @@ ALLOWED_HOSTS = ['skmbooks.onrender.com', 'localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://skmbooks.onrender.com",
-    "skmbooks.onrender.com"
+    "https://skmbooks.onrender.com"
 ]
 # Application definition
 
